@@ -723,25 +723,23 @@ EXTRA_CSS = """
       position:fixed !important;
       bottom:0; left:0; right:0; top:auto !important;
       transform:none !important;
-      width:100% !important; height:50px;
+      width:100% !important; height:54px;
       flex-direction:row !important;
       background:rgba(10,17,28,.97);
       border-top:1px solid var(--line) !important;
       border-left:none !important; border-right:none !important; border-bottom:none !important;
-      overflow-x:auto; overflow-y:hidden;
-      scrollbar-width:none; -ms-overflow-style:none;
+      overflow:hidden;
       z-index:500;
     }
-    nav.secs::-webkit-scrollbar{ display:none; }
     nav.secs a{
-      flex:1 0 auto !important; height:50px !important;
-      width:auto !important;
-      padding:0 16px !important;
+      flex:1 1 0 !important; height:54px !important;
+      min-width:0 !important; width:0 !important;
+      padding:0 4px !important;
       display:flex !important; align-items:center !important; justify-content:center !important;
-      text-align:center !important; line-height:1.25 !important;
-      white-space:nowrap !important;
+      text-align:center !important; line-height:1.3 !important;
+      white-space:normal !important; word-break:break-word !important;
       border-bottom:none !important; border-right:1px solid var(--line2) !important;
-      font-size:8.5px !important; letter-spacing:.1em !important;
+      font-size:7.5px !important; letter-spacing:.05em !important;
     }
     nav.secs a:last-child{ border-right:none !important; }
     nav.secs a:active{ color:var(--cyan); background:rgba(95,211,227,.1); }
@@ -784,7 +782,7 @@ EXTRA_CSS = """
     /* ── Contenido: compensar header + tab bar ── */
     .wrap{
       padding-left:12px !important; padding-right:12px !important;
-      padding-top:52px !important; padding-bottom:62px !important;
+      padding-top:52px !important; padding-bottom:66px !important;
     }
 
     /* ── Imágenes más pequeñas ── */
