@@ -662,7 +662,7 @@ EXTRA_CSS = """
     color:var(--amber); border-bottom-color:rgba(240,180,0,.3);
     opacity:.55; cursor:default;
   }
-  .gated.locked .e-link{
+  .locked .e-link{
     color:var(--amber) !important; border-bottom-color:rgba(240,180,0,.2) !important;
     opacity:.4 !important; pointer-events:none !important; cursor:default !important;
   }
@@ -891,7 +891,7 @@ JS_EXTRA = """
     if(!link) return;
     e.preventDefault();
     if(link.classList.contains('e-sealed')) return;
-    if(link.closest('.gated.locked')) return;
+    if(link.closest('.locked')) return;
     var tid = link.getAttribute('data-target');
     var target = tid ? document.getElementById(tid) : null;
     if(!target) return;
