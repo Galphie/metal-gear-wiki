@@ -6,7 +6,7 @@
 
 ## Historia del proyecto
 
-Metal Gear Solid 4 incluye una base de datos enciclopédica dentro del propio juego: fichas de personajes, organizaciones y tecnología que se van desbloqueando conforme avanzas. Siempre me pareció una idea brillante y me quedé con ganas de que existiera algo así para toda la saga, no solo para MGS4.
+Metal Gear Solid 4 incluye una base de datos enciclopédica complementaria al propio juego: fichas de personajes, organizaciones y tecnología que se van desbloqueando conforme avanzas por los distintos actos del juego. Siempre me pareció una idea brillante y me quedé con ganas de que existiera algo así para toda la saga, no solo para MGS4.
 
 Hace años empecé a construir eso a mano: un documento que ordenara la historia de Metal Gear de forma que pudiera compartirlo con alguien que estuviera jugando la saga por primera vez sin arruinarle nada. La idea era buena pero el proyecto se quedó a medias, demasiado ambicioso para hacerlo solo en los ratos libres, y lo archivé.
 
@@ -14,6 +14,8 @@ Hace poco lo rescaté. Con ayuda de IA pude no solo terminar lo que había empez
 
 El resultado es este archivo HTML autocontenido. Sin servidor, sin base de datos, sin dependencias externas. Solo abrirlo y funciona.
 
+[!INFO]
+Lejos de estar terminada, los resúmenes de cada uno de los personajes, grupos, eventos, etc. están aún en continua revisión. Cualquier sugerencia de cambio, (tanto de estos como de mejora de la web), como corrección de cualquier texto puedes abrirme una [`issue`](https://github.com/Galphie/metal-gear-wiki/issues/new) e informármelo. Muchas gracias por adelantado.
 ---
 
 ## Qué es
