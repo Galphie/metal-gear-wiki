@@ -6,7 +6,9 @@
 
 ## Historia del proyecto
 
-Hace años empecé a construir esto a mano: un documento que ordenara la historia de Metal Gear de forma que pudiera compartirlo con alguien que estuviera jugando la saga por primera vez sin arruinarle nada. La idea era buena pero el proyecto se quedó a medias, demasiado ambicioso para hacerlo solo en los ratos libres, y lo archivé.
+Metal Gear Solid 4 incluye una base de datos enciclopédica dentro del propio juego: fichas de personajes, organizaciones y tecnología que se van desbloqueando conforme avanzas. Siempre me pareció una idea brillante y me quedé con ganas de que existiera algo así para toda la saga, no solo para MGS4.
+
+Hace años empecé a construir eso a mano: un documento que ordenara la historia de Metal Gear de forma que pudiera compartirlo con alguien que estuviera jugando la saga por primera vez sin arruinarle nada. La idea era buena pero el proyecto se quedó a medias, demasiado ambicioso para hacerlo solo en los ratos libres, y lo archivé.
 
 Hace poco lo rescaté. Con ayuda de IA pude no solo terminar lo que había empezado, sino llevarlo mucho más lejos de lo que hubiera hecho solo: retratos dinámicos por juego, logos de organizaciones, artwork de los Metal Gear, hiperenlaces entre entradas, diseño responsive, y una lógica de spoilers bastante más sofisticada de la que yo habría implementado a mano.
 
