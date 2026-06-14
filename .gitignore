@@ -1,6 +1,11 @@
 # Claude Code internal
 .claude/
 
+# Archivos de construcción (el output ya es index.html)
+enciclopedia_progresiva_metal_gear.html
+build_v4.py
+wiki_chars/
+
 # Python
 __pycache__/
 *.pyc
