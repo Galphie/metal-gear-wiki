@@ -11,7 +11,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 CHARS_DIR = "C:/Users/algpa/Desktop/croquis_metal-gear/wiki_chars"
 HTML_IN   = "C:/Users/algpa/Desktop/croquis_metal-gear/enciclopedia_progresiva_metal_gear.html"
-HTML_OUT  = "C:/Users/algpa/Desktop/croquis_metal-gear/enciclopedia_progresiva_metal_gear_v4.html"
+HTML_OUT  = "C:/Users/algpa/Desktop/croquis_metal-gear/index.html"
 
 # ── Funciones base64 ─────────────────────────────────────────────────────
 def make_img_tag(fname, w, h, cls, pixelated=False):
