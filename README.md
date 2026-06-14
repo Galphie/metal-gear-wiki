@@ -14,8 +14,9 @@ Hace poco lo rescaté. Con ayuda de IA pude no solo terminar lo que había empez
 
 El resultado es este archivo HTML autocontenido. Sin servidor, sin base de datos, sin dependencias externas. Solo abrirlo y funciona.
 
-[!INFO]
-Lejos de estar terminada, los resúmenes de cada uno de los personajes, grupos, eventos, etc. están aún en continua revisión. Cualquier sugerencia de cambio, (tanto de estos como de mejora de la web), como corrección de cualquier texto puedes abrirme una [`issue`](https://github.com/Galphie/metal-gear-wiki/issues/new) e informármelo. Muchas gracias por adelantado.
+> [!NOTE]
+> _Lejos de estar terminada, los resúmenes de cada uno de los personajes, grupos, eventos, etc. están aún en continua revisión. Cualquier sugerencia de cambio, (tanto de estos como de mejora de la  web), como corrección de cualquier texto puedes abrirme una [`issue`](https://github.com/Galphie/metal-gear-wiki/issues/new) e informármelo._
+> _Muchas gracias por adelantado._ 
 ---
 
 ## Qué es
