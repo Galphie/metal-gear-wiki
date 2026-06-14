@@ -662,6 +662,10 @@ EXTRA_CSS = """
     color:var(--amber); border-bottom-color:rgba(240,180,0,.3);
     opacity:.55; cursor:default;
   }
+  .gated.locked .e-link{
+    color:var(--amber); border-bottom-color:rgba(240,180,0,.2);
+    opacity:.4; pointer-events:none; cursor:default;
+  }
 
   /* ===== Elementos solo-móvil: ocultos en escritorio ===== */
   #mobileHeader, #mobileOverlay { display:none; }
