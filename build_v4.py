@@ -663,8 +663,8 @@ EXTRA_CSS = """
     opacity:.55; cursor:default;
   }
   .gated.locked .e-link{
-    color:var(--amber); border-bottom-color:rgba(240,180,0,.2);
-    opacity:.4; pointer-events:none; cursor:default;
+    color:var(--amber) !important; border-bottom-color:rgba(240,180,0,.2) !important;
+    opacity:.4 !important; pointer-events:none !important; cursor:default !important;
   }
 
   /* ===== Elementos solo-móvil: ocultos en escritorio ===== */
@@ -891,6 +891,7 @@ JS_EXTRA = """
     if(!link) return;
     e.preventDefault();
     if(link.classList.contains('e-sealed')) return;
+    if(link.closest('.gated.locked')) return;
     var tid = link.getAttribute('data-target');
     var target = tid ? document.getElementById(tid) : null;
     if(!target) return;
