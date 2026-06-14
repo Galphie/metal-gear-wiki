@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base de Datos Metal Gear — Enciclopedia progresiva sin spoilers</title>
+<style>
+  :root{
+    --bg:#0A111C; --panel:#101B2B; --panel2:#0D1623; --line:#21364F; --line2:#2E4A6B;
+    --cyan:#5FD3E3; --cyan-dim:#2E7C8A; --text:#C9D6E2; --dim:#7E93A9; --bright:#EAF3FA;
+    --amber:#E2A93F; --red:#D2604F;
+    --mono:"Courier New", Courier, monospace;
+    --sans:"Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{transition:none !important;} }
+  body{
+    background:var(--bg);
+    background-image:
+      radial-gradient(1100px 500px at 50% -10%, rgba(95,211,227,.07), transparent 65%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
+    color:var(--text); font-family:var(--sans); line-height:1.6; font-size:15.5px;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:24px 16px 90px;}
+
+  /* ---------- Cabecera ---------- */
+  header.db{
+    border:1px solid var(--line); background:linear-gradient(180deg, #122036, var(--panel2));
+    padding:26px 26px 20px; position:relative;
+  }
+  header.db::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+  .db .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;color:var(--cyan);text-transform:uppercase;}
+  .db h1{font-family:var(--mono);font-size:clamp(22px,4vw,38px);letter-spacing:.05em;color:var(--bright);text-transform:uppercase;margin:8px 0 6px;}
+  .db .sub{color:var(--dim);max-width:74ch;}
+  .db .warn{
+    margin-top:14px;border:1px solid rgba(226,169,63,.4);background:rgba(226,169,63,.08);
+    color:#EBCB8C;padding:9px 13px;font-size:13.5px;
+  }
+
+  /* ---------- Panel de acceso (firma) ---------- */
+  .access{
+    position:sticky;top:0;z-index:50;background:rgba(10,17,28,.97);
+    border:1px solid var(--line);border-top:none;padding:12px 14px 10px;
+    backdrop-filter:blur(4px);
+  }
+  .access .a-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+  .access .a-title{font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--cyan);text-transform:uppercase;}
+  .access .a-count{font-family:var(--mono);font-size:11.5px;color:var(--dim);}
+  .access .a-count b{color:var(--bright);}
+  .rail{display:flex;flex-wrap:wrap;gap:6px;}
+  .g-toggle{
+    flex:1 1 76px;min-width:72px;cursor:pointer;user-select:none;text-align:center;
+    border:1px solid var(--line);background:var(--panel2);padding:7px 4px 6px;
+    transition:background .15s,border-color .15s;
+  }
+  .g-toggle input{position:absolute;opacity:0;pointer-events:none;}
+  .g-toggle .g-id{display:block;font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--dim);}
+  .g-toggle .g-yr{display:block;font-family:var(--mono);font-size:10.5px;color:#54677C;letter-spacing:.12em;}
+  .g-toggle.on{background:rgba(95,211,227,.13);border-color:var(--cyan-dim);}
+  .g-toggle.on .g-id{color:var(--cyan);}
+  .g-toggle.on .g-yr{color:#8FB9C4;}
+  .g-toggle:hover{border-color:var(--line2);}
+  .g-toggle:focus-within{outline:2px solid var(--cyan);outline-offset:1px;}
+  .a-hint{margin-top:7px;font-size:12px;color:#5E7185;}
+  .a-hint{color:#5E7791;}
+  .a-actions{display:flex;gap:10px;margin-top:7px;flex-wrap:wrap;align-items:center;}
+  .a-actions button{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+    background:none;border:1px solid var(--line2);color:var(--dim);padding:4px 10px;
+  }
+  .a-actions button:hover{color:var(--cyan);border-color:var(--cyan-dim);}
+
+  /* ---------- Navegación de secciones ---------- */
+  nav.secs{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-top:none;background:var(--panel2);}
+  nav.secs a{
+    flex:1 1 auto;text-align:center;padding:9px 10px;text-decoration:none;
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--dim);border-right:1px solid var(--line);
+  }
+  nav.secs a:last-child{border-right:none;}
+  nav.secs a:hover,nav.secs a:focus-visible{color:var(--cyan);background:rgba(95,211,227,.06);outline:none;}
+
+  /* ---------- Secciones ---------- */
+  section.zone{margin-top:34px;}
+  .zone > h2{
+    font-family:var(--mono);font-size:clamp(17px,2.6vw,23px);letter-spacing:.18em;text-transform:uppercase;
+    color:var(--bright);border-bottom:1px solid var(--line2);padding-bottom:8px;margin-bottom:6px;
+  }
+  .zone > h2 .idx{color:var(--cyan);margin-right:10px;}
+  .zone > .z-desc{color:var(--dim);font-size:13.5px;margin-bottom:18px;max-width:80ch;}
+
+  /* ---------- Fichas ---------- */
+  .card{
+    border:1px solid var(--line);background:var(--panel);margin-bottom:16px;padding:16px 18px 6px;
+  }
+  .card > h3{
+    font-family:var(--mono);font-size:16px;letter-spacing:.08em;color:var(--cyan);
+    text-transform:uppercase;margin-bottom:2px;
+  }
+  .card > .c-sub{font-size:12.5px;color:var(--dim);font-family:var(--mono);letter-spacing:.06em;margin-bottom:10px;}
+  .card p{margin-bottom:10px;max-width:82ch;}
+  .card strong{color:var(--bright);}
+
+  /* Segmentos progresivos dentro de una ficha */
+  .seg{border-left:3px solid var(--line2);padding:8px 12px;margin:0 0 12px;position:relative;background:rgba(255,255,255,.015);}
+  .seg .s-src{
+    display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+    color:var(--cyan);text-transform:uppercase;margin-bottom:4px;
+  }
+  .seg p{margin-bottom:6px;font-size:14.5px;}
+  .seg p:last-child{margin-bottom:2px;}
+
+  /* ---------- Sistema de bloqueo ---------- */
+  .gated{position:relative;}
+  .gated.locked > .g-body{
+    filter:blur(7px) saturate(.4);opacity:.55;pointer-events:none;user-select:none;
+  }
+  .gated.locked::after{
+    content:"🔒 " attr(data-req);
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--amber);
+    background:repeating-linear-gradient(135deg, rgba(226,169,63,.05) 0 10px, rgba(0,0,0,0) 10px 20px);
+    border:1px dashed rgba(226,169,63,.45);padding:6px 10px;
+  }
+  .gated.locked{min-height:54px;}
+  /* Tarjetas cuya mera existencia es spoiler */
+  .gated .t-lock{display:none;color:var(--amber);}
+  .gated.locked .t-open{display:none;}
+  .gated.locked .t-lock{display:inline;}
+  .gated.locked.secret > .g-body{filter:blur(12px);opacity:.25;}
+  /* Retcon en línea dentro de un párrafo ya desbloqueado: se difumina solo, sin overlay */
+  .t-extra{transition:filter .25s, opacity .25s;}
+  .t-extra.locked{filter:blur(5px);opacity:.5;user-select:none;}
+  .t-extra.locked::after{display:none;}
+  .t-extra.locked{min-height:0;}
+  /* Carril de acceso (juegos completados) */
+  .rail-item{display:flex;align-items:center;gap:7px;cursor:pointer;
+    border:1px solid var(--line);border-radius:7px;padding:6px 10px;
+    background:rgba(95,211,227,.04);transition:border-color .2s, background .2s;}
+  .rail-item:hover{border-color:var(--cyan);background:rgba(95,211,227,.09);}
+  .rail-item input{accent-color:var(--cyan);width:15px;height:15px;cursor:pointer;}
+  .rail-txt{font-size:12.5px;color:var(--bright);display:flex;align-items:center;gap:6px;}
+  .rail-n{font-family:var(--mono);font-size:10px;color:var(--navy);background:var(--cyan);
+    border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;}
+  .rail-yr{font-family:var(--mono);font-size:10.5px;color:var(--dim);}
+
+  /* ---------- Cronología ---------- */
+  .chrono{list-style:none;border-left:2px solid var(--cyan-dim);padding-left:0;margin-left:6px;}
+  .chrono > li{position:relative;margin:0 0 14px;padding:0 0 0 22px;}
+  .chrono > li::before{
+    content:"";position:absolute;left:-6px;top:8px;width:10px;height:10px;
+    background:var(--bg);border:2px solid var(--cyan);border-radius:50%;
+  }
+  .chrono .yr{font-family:var(--mono);font-weight:700;color:var(--cyan);letter-spacing:.08em;margin-right:8px;}
+  .chrono .ev-src{font-family:var(--mono);font-size:10.5px;color:#566B85;}
+  .chrono .ev-src{color:#566F86;letter-spacing:.1em;}
+  .chrono .g-body{font-size:14.5px;}
+  .chrono li.gated.locked::before{border-color:var(--amber);}
+
+  details.evt{border:1px solid var(--line);background:var(--panel);margin-bottom:12px;}
+  details.evt > summary{
+    cursor:pointer;list-style:none;padding:12px 16px;font-family:var(--mono);
+    font-size:13.5px;letter-spacing:.1em;color:var(--bright);text-transform:uppercase;
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  details.evt > summary::-webkit-details-marker{display:none;}
+  details.evt > summary .e-yr{color:var(--cyan);}
+  details.evt[open] > summary{border-bottom:1px solid var(--line);}
+  details.evt .e-in{padding:14px 16px 6px;}
+  details.evt .e-in p{margin-bottom:10px;max-width:82ch;font-size:14.5px;}
+
+  .legend{font-size:12.5px;color:var(--dim);border:1px dashed var(--line2);padding:8px 12px;margin:14px 0 0;}
+  .legend b{color:var(--amber);}
+  footer{margin-top:46px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:#4E647B;}
+  @media (max-width:640px){ .card{padding:13px 12px 4px;} header.db{padding:18px 14px 14px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="db">
+  <p class="eyebrow">Archivo táctico · Acceso restringido por progreso</p>
+  <h1>Base de datos Metal Gear</h1>
+  <p class="sub">Enciclopedia progresiva de la saga principal (1987–2015): personajes, organizaciones, tecnología, cronología y eventos históricos. Cada registro permanece sellado hasta que indiques que has completado el juego que lo revela.</p>
+  <div class="warn">⚠ <strong>Protocolo anti-spoilers:</strong> el desbloqueo sigue siempre el <strong>orden de lanzamiento</strong>, nunca la cronología interna. Un dato sobre 1964 revelado en un juego de 2008 seguirá oculto hasta que marques ese juego. Ante la duda, este archivo siempre oculta.</div>
+</header>
+
+<div class="access" id="access">
+  <div class="a-head">
+    <span class="a-title">Nivel de acceso — Juegos completados</span>
+    <span class="a-count" id="counter">0 / 11 juegos · 0 registros desbloqueados</span>
+  </div>
+  <div class="rail" id="rail" role="group" aria-label="Selecciona los juegos que has completado"></div>
+  <div class="a-actions">
+    <button type="button" id="btnAll">Desbloquear todo</button>
+    <button type="button" id="btnNone">Sellar todo</button>
+    <span class="a-hint">Marcar un juego activa automáticamente todos los anteriores; desmarcarlo sella ese y los posteriores.</span>
+  </div>
+</div>
+
+<nav class="secs" aria-label="Secciones de la enciclopedia">
+  <a href="#sec-personajes">Personajes</a>
+  <a href="#sec-organizaciones">Organizaciones</a>
+  <a href="#sec-tecnologia">Tecnología</a>
+  <a href="#sec-cronologia">Cronología</a>
+  <a href="#sec-eventos">Eventos históricos</a>
+</nav>
+
+<div class="legend">Leyenda: los bloques con <b>🔒 candado ámbar</b> están sellados; al marcar el juego correspondiente se revelan al instante, sin recargar la página. Las fichas marcadas como «EXPEDIENTE SELLADO» ocultan incluso el nombre, porque su mera existencia es un spoiler.</div>
+<!-- ================= PERSONAJES ================= -->
+<section class="zone" id="sec-personajes">
+  <h2><span class="idx">01</span>Personajes</h2>
+  <p class="z-desc">Fichas progresivas: cada bloque indica el juego que revela esa parte de la biografía. La ficha crece con tu progreso; el «estado» del personaje mostrado corresponde siempre al último juego que hayas marcado.</p>
+
+  <!-- BIG BOSS -->
+  <article class="card gated" data-game="mg" data-req="SELLADO — Completa Metal Gear (1987)">
+    <div class="g-body">
+      <h3>Big Boss <span class="t-lock"></span></h3>
+      <div class="seg gated" data-game="mg" data-req="Completa Metal Gear (1987)"><div class="g-body">
+        <span class="s-src">Metal Gear · 1987</span>
+        <p>Héroe de guerra legendario y comandante de la unidad de élite FOXHOUND. Dirige por radio la Operación Intrude N313… mientras la sabotea: <strong>Big Boss es el fundador y líder de Outer Heaven</strong>, la nación-fortaleza mercenaria que construye el Metal Gear TX-55. Derrotado por su propio recluta, Solid Snake, jura venganza entre las llamas de su base en autodestrucción.</p>
+      </div></div>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2: Solid Snake (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Sobrevivió a Outer Heaven. En 1999 reaparece como líder de <strong>Zanzibar Land</strong>, un Estado para soldados sin patria y huérfanos de guerra, armado con Metal Gear D y las últimas ojivas nucleares del mundo. Expone a Snake su ideología —dar a los guerreros desechados un hogar y una razón de ser— antes de caer ante un lanzallamas improvisado. Se le da por muerto definitivamente.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Su sombra domina Shadow Moses: en los años setenta, el proyecto <strong>Les Enfants Terribles</strong> lo clonó sin que se conozcan los detalles. Solid Snake y Liquid Snake son sus «hijos» genéticos, y los soldados del genoma portan terapias derivadas de su ADN. Los rebeldes exigen sus restos para corregir el genoma de Liquid.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p><strong>Origen.</strong> En 1964 es Naked Snake, agente de la unidad FOX de la CIA y discípulo de The Boss. En la Operación Snake Eater destruye el Shagohod, mata a su mentora por orden de su país y recibe el título de Big Boss. Descubre que EE. UU. sacrificó a The Boss y manchó su nombre para recuperar el Legado de los Filósofos: la semilla de su desencanto con todo gobierno queda plantada.</p>
+      </div></div>
+      <div class="seg gated" data-game="po" data-req="Completa MGS: Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>1970: secuestrado por su antigua unidad, FOX, amotinada en la base de San Hieronymo bajo el mando de Gene. Para limpiar su nombre y el de Zero, levanta un pequeño ejército con soldados reclutados sobre el terreno —el germen de su futuro estilo de mando— y derrota a Gene, que le lega los fondos y el personal de su proyecto «Army's Heaven». Después abandona FOX.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4: Guns of the Patriots (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Cofundó con Zero, Ocelot, EVA, Para-Medic y Sigint la organización que el mundo acabaría conociendo como <strong>los Patriots</strong>, financiada con el Legado de los Filósofos; rompió con Zero al sentir traicionada la memoria de The Boss (el proyecto de clonación fue la gota final). Tras 1999 su cuerpo fue conservado por los Patriots; reconstruido y despierto en 2014, se reconcilia con la verdad ante la tumba de The Boss, elimina a Zero y muere en paz junto a Solid Snake, su «hijo», víctima del nuevo FOXDIE.</p>
+      </div></div>
+      <div class="seg gated" data-game="pw" data-req="Completa MGS: Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>1974: lidera junto a Kazuhira Miller los <strong>Militaires Sans Frontières</strong>, un ejército sin nación con base en una plataforma marina ("Mother Base"). Durante el incidente Peace Walker se enfrenta a la IA construida a imagen de The Boss, rechaza definitivamente volver con Cipher (Zero) y asume sin complejos el nombre de Big Boss: su MSF conservará en secreto el Metal Gear ZEKE y la capacidad de disuasión nuclear.</p>
+      </div></div>
+      <div class="seg gated" data-game="gz" data-req="Completa MGSV: Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>Marzo de 1975: rescata a Chico y Paz de Camp Omega, pero la operación es la tapadera del golpe de <strong>XOF</strong>: Mother Base es destruida, MSF aniquilada y Big Boss cae en coma tras la explosión a bordo del helicóptero.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa MGSV: The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>Despierta en 1984… o eso parece. La verdad: el hombre que el jugador encarna en 1984, «Venom Snake», es <strong>su médico de MSF, transformado mediante cirugía e hipnoterapia en un doble perfecto</strong>. El verdadero Big Boss opera en la sombra construyendo su nación militar; el doble dirige Diamond Dogs y absorbe su leyenda. Consecuencia retroactiva: <strong>el "Big Boss" que Solid Snake derrota en Outer Heaven (1995) era Venom</strong>; el auténtico cae en Zanzibar Land (1999).</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- SOLID SNAKE -->
+  <article class="card gated" data-game="mg" data-req="SELLADO — Completa Metal Gear (1987)">
+    <div class="g-body">
+      <h3>Solid Snake</h3>
+      <div class="seg gated" data-game="mg" data-req="Completa Metal Gear (1987)"><div class="g-body">
+        <span class="s-src">Metal Gear · 1987</span>
+        <p>Recluta novato de FOXHOUND enviado en solitario a Outer Heaven. Rescata a Gray Fox, destruye el Metal Gear TX-55 y descubre que su comandante, Big Boss, es el enemigo. Lo derrota y abandona la unidad, marcado por la traición.</p>
+      </div></div>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Reactivado por Campbell para la crisis de Zanzibar Land: recupera la fórmula OILIX, vence a Gray Fox a puño limpio en un campo de minas y acaba con Big Boss. Después se retira a Alaska a «olvidar la guerra» con sus perros de trineo.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Forzado a volver en Shadow Moses, descubre que es un <strong>clon de Big Boss</strong> (proyecto Les Enfants Terribles) y «hermano» de Liquid, y que su propio gobierno lo usó como portador del virus asesino FOXDIE. Destruye Metal Gear REX y desaparece, dado oficialmente por muerto, junto a Otacon.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Cofundador de Philanthropy, la ONG anti–Metal Gear. Culpado falsamente del hundimiento del petrolero (2007), reaparece en Big Shell (2009) como «Iroquois Pliskin» y guía a Raiden hasta el final, dejándole la lección de la saga: nadie —ni genes, ni IA, ni conspiraciones— elige por ti quién eres. Salta tras Ocelot con un localizador; su rastro queda ahí en 2001.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: convertido en <strong>Old Snake</strong> por un envejecimiento acelerado de diseño (los clones fueron creados con caducidad), porta además una nueva cepa de FOXDIE. Persigue a Liquid Ocelot a través de la economía de guerra, destruye la IA de los Patriots con el virus de Naomi y Sunny, renuncia al suicidio ante la tumba de The Boss y recibe la despedida de Big Boss. Decide vivir su tiempo restante en paz, como hombre y no como leyenda.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- THE BOSS -->
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>The Boss</h3>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>Heroína de la Segunda Guerra Mundial que dio a luz en pleno campo de batalla en 1944 (el niño le fue arrebatado). En 1964 «deserta» a la URSS: en realidad cumplía una misión encubierta de la CIA para recuperar el Legado de los Filósofos en manos de Volgin. Cuando la bomba de Volgin compromete a EE. UU., acepta el papel final: morir como traidora a manos de su discípulo para salvar el honor de su país, que jamás la reconocerá. Su filosofía —no hay enemigo absoluto; la lealtad es a la misión y a la época— vertebra toda la saga.</p>
+      </div></div>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>Su sombra persiste: Gene fue creado por el proyecto «Successor» para replicarla artificialmente, y la verdad de su sacrificio se usa como arma psicológica contra Snake.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>El hijo que le fue arrebatado en 1944 tiene nombre: <strong>Ocelot</strong>, fruto de su relación con The Sorrow. La distorsión de su voluntad («un mundo unido») por parte de Zero es el pecado original del que nacen los Patriots.</p>
+      </div></div>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>1974: la doctora Strangelove, que la idolatraba, vuelca su personalidad en la IA del Peace Walker. La «Boss IA» elige ahogarse para impedir un lanzamiento nuclear, reproduciendo el sacrificio de la mujer real y devolviendo a Big Boss el sentido de su legado… aunque él decide caminar en dirección contraria.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- OCELOT -->
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Revolver Ocelot</h3>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Pistolero y torturador del FOXHOUND rebelde en Shadow Moses. Pierde la mano derecha ante el Ninja. Tras el incidente se revela como infiltrado: roba los datos de combate de REX y rinde cuentas por teléfono a un misterioso «Señor Presidente».</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Orquesta el incidente del petrolero, traiciona a los Gurlukovich y roba Metal Gear RAY al servicio de los Patriots. Su nueva mano —trasplantada de Liquid Snake— parece poseerlo periódicamente con la personalidad de su antiguo camarada; «Liquid» escapa con el RAY original en Big Shell prometiendo cazar a los Patriots.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>1964: joven prodigio del GRU que aprende de Naked Snake el camino del revólver. Es <strong>ADAM</strong>, agente de la CIA infiltrado en la inteligencia soviética; al final entrega a EE. UU. el auténtico Legado de los Filósofos y deja en el aire la pregunta que lo definirá: ¿a quién sirve realmente?</p>
+      </div></div>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>1970: opera en la sombra durante el incidente de San Hieronymo eliminando cabos sueltos, y se hace con los documentos del Legado en poder del director de la CIA. Comunica a un socio aún sin rostro que tiene planes propios para ese poder… y condiciona su colaboración a que Big Boss participe.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Toda la verdad: hijo de The Boss y The Sorrow, nacido en un campo de batalla en 1944. Cofundador de los Patriots, leal en el fondo a Big Boss. La «posesión» de Liquid fue, en su fase final, un autoengaño deliberado (hipnoterapia y nanomáquinas) para burlar a las IA de los Patriots: como <strong>Liquid Ocelot</strong> montó la insurrección de 2014 cuyo objetivo oculto era destruir a los Patriots y liberar al mundo de Zero. Muere ante Solid Snake, en paz, por la nueva cepa de FOXDIE.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa MGSV: The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: mano derecha en la sombra del verdadero Big Boss. Diseñó junto a él el plan del «fantasma» (Venom Snake), se borró a sí mismo mediante hipnosis los datos que pudieran delatarlo y custodió el secreto durante una década, repartiendo el tablero con Miller y EVA.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- LIQUID -->
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Liquid Snake</h3>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Gemelo clónico de Solid Snake, convencido de haber heredado los «genes recesivos» de Big Boss. Lidera el motín de Shadow Moses para obtener los restos de su «padre» y heredar su sueño de una nación de soldados. Sobrevive a todo —a REX, al puño de Snake, a la caída— hasta que FOXDIE lo fulmina.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Su brazo derecho, trasplantado a Ocelot, parece traer consigo su voluntad: «Liquid» emerge en momentos clave, reclama el RAY original y jura dar caza a los Patriots.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>«Liquid Ocelot», el señor de la guerra de 2014, nunca fue una posesión real: era Ocelot interpretando a Liquid hasta el autoengaño. La personalidad de Liquid muere definitivamente cuando Ocelot, purgado de nanomáquinas, recupera su yo en el último asalto sobre Outer Haven.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa MGSV: The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: aparece de niño como <strong>Eli</strong>, líder de niños soldado africanos, capturado por Diamond Dogs. Odia ya al «padre» del que se cree desecho, roba Sahelanthropus en su fuga y desaparece del radar… camino del hombre que será en 2005.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- SOLIDUS -->
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Solidus Snake</h3>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>El clon «equilibrado» que los Patriots sentaron en la presidencia. Ordenó en la sombra el incidente de Shadow Moses, fue depuesto por ello y reapareció como líder de los Sons of Liberty para arrancar al país del control de los Patriots. Criado en la guerra de Liberia, fue el «padre» y verdugo de Raiden, que acaba matándolo en el Federal Hall sin saber que ambos eran piezas del Plan S3.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Su cuerpo, conservado clínicamente, es usado por EVA y la resistencia como señuelo («el cadáver de Big Boss») y acaba sirviendo de fuente de repuestos genéticos para reconstruir al auténtico Big Boss.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- GRAY FOX -->
+  <article class="card gated" data-game="mg" data-req="SELLADO — Completa Metal Gear (1987)">
+    <div class="g-body">
+      <h3>Gray Fox</h3>
+      <div class="seg gated" data-game="mg" data-req="Completa Metal Gear (1987)"><div class="g-body">
+        <span class="s-src">Metal Gear · 1987</span>
+        <p>El mejor agente de FOXHOUND, capturado en Outer Heaven tras transmitir tres palabras: «METAL GEAR…». Rescatado por Solid Snake, le revela la naturaleza del arma y cómo destruirla.</p>
+      </div></div>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Reaparece en Zanzibar Land al lado de Big Boss, el único hombre que le dio un lugar en el mundo. Mata accidentalmente a su antiguo amor, Gustava Heffner; pilota Metal Gear D y cae ante Snake en un duelo a puño limpio sobre un campo de minas.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Recuperado de entre los muertos para experimentos de terapia génica y cibernética, vuelve como el <strong>Ninja Cyborg</strong>: un alma rota que pide a Snake un último duelo. Hermano adoptivo de Naomi Hunter. Muere aplastado por REX tras darle a Snake la oportunidad de destruirlo, despidiéndose como su camarada.</p>
+      </div></div>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>1970: aparece como <strong>Null</strong>, el «Perfecto Soldado», un adolescente reprogramado químicamente como arma viviente de FOX. Big Boss lo derrota dos veces y lo libera del condicionamiento: es Frank Jaeger, el niño soldado que Big Boss capturó —y salvó— en Mozambique.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- OTACON -->
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Hal «Otacon» Emmerich</h3>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Diseñador jefe de Metal Gear REX, engañado sobre su propósito real. En Shadow Moses despierta a la responsabilidad: ayuda a Snake desde dentro, se enamora de Sniper Wolf y la llora, y abandona la isla convertido en otra persona.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Cerebro técnico de Philanthropy. En Big Shell reencuentra a su hermanastra Emma, con quien carga una historia familiar trágica (la infidelidad con su madrastra, el suicidio de su padre en la piscina el día que Emma estuvo a punto de ahogarse). Emma muere en sus brazos; Otacon hereda su loro y su deuda emocional.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: opera con Snake desde el Nomad junto a Sunny, la niña que rescataron de los Patriots. Pierde también a Naomi. Tras la caída de los Patriots asume custodiar la verdad de la era que termina… y acompañar a Snake en el tiempo que le quede.</p>
+      </div></div>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>Contexto familiar: su padre es <strong>Huey Emmerich</strong>, el ingeniero de armas bípedas del incidente Peace Walker (1974); Hal nacerá de la relación de Huey con la doctora Strangelove.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- RAIDEN -->
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Raiden</h3>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Niño soldado de la guerra de Liberia criado por Solidus, reprogramado por los Patriots como agente sin pasado y entrenado solo en realidad virtual. En Big Shell descubre que toda su misión —y su vida— era el Plan S3, mata a Solidus contra su voluntad y elige, con ayuda de Snake, construir una identidad propia junto a Rose, que espera un hijo suyo.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: tras rescatar a Sunny y caer en manos de los Patriots, regresa convertido en <strong>ciborg ninja</strong>. Creyendo muerto a su hijo y rota su relación con Rose (un engaño para protegerlos de los Patriots), pelea como arma desesperada; sobrevive mutilado, recupera a su familia y entierra el apodo de «Jack el Destripador»… por un tiempo.</p>
+      </div></div>
+      <div class="seg gated" data-game="rising" data-req="Completa Metal Gear Rising: Revengeance (2013)"><div class="g-body">
+        <span class="s-src">Rising · 2013</span>
+        <p>2018: agente de la PMC ética Maverick. La masacre de su protegido, el primer ministro N'mani, por la PMC Desperado lo arrastra a una guerra contra World Marshal y el senador Armstrong, y a reconciliarse con su lado oscuro: el Destripador puesto al servicio de proteger a los débiles. Corta por lo sano —literalmente— el negocio de cerebros de niños soldado.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- EVA -->
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>EVA</h3>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>Se infiltra en 1964 como agente de la KGB y aliada (y amante) de Naked Snake. En realidad es una espía de China enviada a robar el Legado de los Filósofos; huye con un microfilm… que Ocelot ya había falsificado.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Cofundadora de los Patriots y <strong>madre subrogada de los clones de Les Enfants Terribles</strong>: gestó a Solid y Liquid. Rota con Zero, lidera en 2014 la resistencia «Paradise Lost» que custodia el cuerpo de Big Boss. Muere durante la insurrección en Europa del Este, en brazos de Snake, como «Big Mama».</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: cómplice del plan del «fantasma»; las cintas la sitúan ayudando a moldear al doble de Big Boss y guardando el secreto.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Roy Campbell -->
+  <article class="card gated" data-game="mg2" data-req="SELLADO — Completa Metal Gear 2 (1990)">
+    <div class="g-body">
+      <h3>Roy Campbell</h3>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Sucesor de Big Boss al mando de FOXHOUND. Dirige por radio la Operación Intrude F014 en Zanzibar Land (1999), guiando a Solid Snake con su característica mezcla de pragmatismo militar y afecto paternal.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Sacado del retiro para la crisis de Shadow Moses: su sobrina Meryl está entre los rehenes. Obligado por el Pentágono a ocultar a Snake datos clave (FOXDIE, la identidad de los responsables), termina rebelándose contra sus superiores para salvar a Snake y a Meryl.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>El «Coronel» que dirige a Raiden en Big Shell <strong>no es Campbell</strong>: es una construcción de la IA que imita su voz y se degrada en mensajes absurdos al final de la misión.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: trabaja para un grupo de seguimiento de las PMC vinculado a la ONU y encarga a Snake su última misión: detener a Liquid Ocelot. Su matrimonio con Rose es una pantalla para proteger a la familia de Raiden. Meryl, que resulta ser su hija biológica, se reconcilia con él.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Zero -->
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Major Zero</h3>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>Oficial británico ex-SAS, fundador de la unidad FOX y comandante de la Operación Snake Eater. Excéntrico, fan de James Bond, mentor y amigo de Naked Snake.</p>
+      </div></div>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>1970: arrestado cuando la unidad FOX se alza en armas en San Hieronymo. El motín, instigado en realidad por Gene y por intereses ocultos en el Pentágono, lo usa como chivo expiatorio; la victoria de Naked Snake lo exonera.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p><strong>Fundador de los Patriots</strong> (c. 1970) junto a Big Boss, Ocelot, EVA, Para-Medic y Sigint, usando el Legado de los Filósofos. Su choque con Big Boss sobre cómo cumplir la voluntad de The Boss —control total frente a libertad del soldado— parte la historia en dos: Zero impulsa Les Enfants Terribles y delega el mundo en una red de IAs que acaba escapando a todo control. En 2014 es un anciano vegetativo; Big Boss lo desconecta y perdona.</p>
+      </div></div>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>Años 70: opera ya bajo el nombre <strong>Cipher</strong>. A través de intermediarios tienta a Big Boss para que vuelva al redil; el rechazo convierte la vieja amistad en guerra fría personal.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>Las cintas revelan que protegió en secreto a Big Boss tras el atentado de 1975, que el parásito que lo dejó incapacitado fue obra de Skull Face, y que su organización quedó a la deriva —en manos de las IAs— mucho antes de lo que nadie creía.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Para-Medic -->
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Para-Medic</h3>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>Médico de la Operación Snake Eater, cinéfila incorregible y pionera de la medicina de campaña. Sus charlas por radio mezclan cirugía, ciencia ficción y críticas de cine de serie B.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Es la <strong>Dra. Clark</strong>: miembro fundador de los Patriots, madre del proyecto Les Enfants Terribles y de la terapia génica. Murió en los años 2000 a manos de su propio experimento, el resucitado Gray Fox.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Sigint -->
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Sigint</h3>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>Especialista en armamento y comunicaciones de FOX, futuro impulsor de DARPA. Escéptico profesional ante los gadgets más absurdos de Snake.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Es <strong>Donald Anderson, el jefe de DARPA</strong> asesinado por Ocelot en Shadow Moses (2005): otro fundador de los Patriots que quiso apartarse del plan de las IAs y lo pagó con la vida.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Miller -->
+  <article class="card gated" data-game="mg2" data-req="SELLADO — Completa Metal Gear 2 (1990)">
+    <div class="g-body">
+      <h3>Kazuhira Miller</h3>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Instructor de supervivencia y antiguo compañero de armas de Big Boss; asesora a Solid Snake por radio durante Zanzibar Land.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>El «Master Miller» que aconseja a Snake en Shadow Moses es <strong>Liquid Snake suplantándolo</strong>: el verdadero Miller fue asesinado en su casa días antes, y el engaño sirve para manipular a Snake y a Naomi.</p>
+      </div></div>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>1974: cofundador y cerebro de negocio de los Militaires Sans Frontières. Hijo de japonesa y militar estadounidense, carismático, ambicioso y leal a Big Boss... aunque coquetea en secreto con Cipher creyendo poder manejar ambos fuegos.</p>
+      </div></div>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>1975: contra su criterio se autoriza la misión de rescate de Chico y Paz; XOF destruye Mother Base ante sus ojos y sobrevive de milagro al estallido que hunde el helicóptero.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: rescatado de Afganistán mutilado (brazo y pierna), reconvertido en comandante de Diamond Dogs y consumido por la venganza contra Cipher. Conoce la verdad del «fantasma» y la acepta con amargura; las semillas de su futura deriva —y de su papel en Zanzibar Land— quedan plantadas.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Naomi -->
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Naomi Hunter</h3>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Jefa médica de la misión de Shadow Moses. Hermana adoptiva de Gray Fox, inyecta a Snake el virus FOXDIE por orden del Pentágono... y lo reprograma en secreto por venganza personal: Snake destrozó a su hermano. Arrestada, confiesa por códec y al final desea a Snake una vida plena: el FOXDIE podría matarlo en cualquier momento, o nunca.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: trabaja a la fuerza para Liquid Ocelot. Revela a Snake el colapso de su cuerpo envejecido y la mutación del FOXDIE. Doble agente trágica: enferma terminal de cáncer que mantiene su cuerpo con nanomáquinas, las desactiva tras ayudar a Otacon y Sunny, y muere dejando tras de sí la clave para destruir a GW.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Meryl -->
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Meryl Silverburgh</h3>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid · 1998</span>
+        <p>Recluta destinada en Shadow Moses el día del motín. Idealista y empeñada en demostrar su valía, se une a Snake, sobrevive a la tortura de Ocelot (en una de las dos versiones del final) y escapa con él prometiéndose una vida propia.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: comanda Rat Patrol Team 01, unidad de inspección de PMC. Descubre que «el tío Roy» es en realidad su padre y hace las paces con él, que la entrega en su boda con Johnny (Akiba) a bordo del Nomad.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Huey -->
+  <article class="card gated" data-game="pw" data-req="SELLADO — Completa Peace Walker (2010)">
+    <div class="g-body">
+      <h3>Huey Emmerich</h3>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>1974: científico en silla de ruedas del proyecto Peace Walker que deserta a MSF horrorizado por el plan de Hot Coldman. Diseña el Metal Gear ZEKE, se enamora de la Dra. Strangelove y es el <strong>padre de Hal «Otacon» Emmerich</strong>: la obsesión familiar por los Metal Gear viene de lejos.</p>
+      </div></div>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>1975: insistió en la inspección nuclear de la AIEA que sirvió de tapadera al ataque de XOF contra Mother Base. ¿Ingenuidad o traición? La duda queda sembrada.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: rescatado/capturado en Afganistán, construyó Sahelanthropus para Skull Face. En Diamond Dogs acumula traiciones: experimentos con Strangelove (a la que dejó morir encerrada en la cápsula de la IA), el sabotaje que desata la epidemia de parásitos y el intento de culpar a todos menos a sí mismo. Exiliado en una balsa, sin juicio: el eslabón patético de una cadena de monstruos que se creen buenas personas.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Paz -->
+  <article class="card gated" data-game="pw" data-req="SELLADO — Completa Peace Walker (2010)">
+    <div class="g-body">
+      <h3>Paz Ortega Andrade</h3>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>1974: estudiante costarricense que pide ayuda a MSF... y resulta ser <strong>agente de Cipher</strong>. Su misión: tentar a Big Boss a volver con Zero o, en su defecto, incriminar a MSF secuestrando ZEKE. Derrotada, cae al mar y se la da por muerta.</p>
+      </div></div>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>1975: sobrevivió. Prisionera de XOF en Camp Omega, torturada por Skull Face, es rescatada por Big Boss con dos bombas dentro del cuerpo. La segunda estalla en el helicóptero: el sacrificio de Paz marca el fin de MSF.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: «aparece» en una enfermería apartada de Mother Base. Es una alucinación: la culpa no extirpada de Venom Snake, que revive una y otra vez la fotografía de aquel día.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Chico -->
+  <article class="card gated" data-game="pw" data-req="SELLADO — Completa Peace Walker (2010)">
+    <div class="g-body">
+      <h3>Chico</h3>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>1974: hermano pequeño de Amanda, comandante sandinista. Capturado por los hombres de Coldman, delata la ubicación de sus camaradas; MSF lo acoge y Big Boss lo trata como a un soldado más para devolverle la dignidad.</p>
+      </div></div>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>1975: viaja por su cuenta a Camp Omega para rescatar a Paz y cae prisionero. Forzado a participar en su tortura, es rescatado junto a ella; muere en el estallido del helicóptero. Tenía 13 años.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Volgin -->
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Yevgeny Borisovitch Volgin</h3>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 3 · 2004</span>
+        <p>1964: coronel sádico que controla millones de voltios con su cuerpo y la mitad del Legado de los Filósofos. Lanza un ataque nuclear contra su propio país para forzar un golpe de Estado, financia el Shagohod y muere carbonizado por el rayo durante la batalla final... aparentemente.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: su cuerpo, conservado en secreto, despierta como el <strong>«Hombre en Llamas»</strong>: un cadáver animado por odio puro hacia Big Boss, guiado por el psíquico Tretij Rebenok. Se apaga definitivamente al comprender que su presa (Venom) no es el hombre al que odiaba.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Vamp -->
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Vamp</h3>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Cuchillero rumano de Dead Cell, superviviente de un atentado que lo enterró bajo una iglesia. Sobrevive a heridas mortales una y otra vez en Big Shell; aparentemente muere... varias veces.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: lugarteniente de Liquid Ocelot. Su «inmortalidad» son <strong>nanomáquinas de regeneración acelerada</strong>; suprimidas por Raiden y Snake, muere en duelo sobre el REX en Shadow Moses, en paz al fin.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Sunny -->
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Sunny Emmerich</h3>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">Metal Gear Solid 2 · 2001</span>
+        <p>Los Patriots retienen al bebé recién nacido de Olga Gurlukovich como seguro de su obediencia: si Olga no protege a Raiden, la niña muere. Olga muere sin recuperarla.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: rescatada años atrás por Raiden, vive a bordo del Nomad con Snake y Otacon. Programadora prodigio, compila el virus FOXALIVE que destruye a las IAs de los Patriots... y por fin aprende a freír huevos.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Gene (secret) -->
+  <article class="card gated secret" data-game="po" data-req="ARCHIVO CLASIFICADO — Completa Portable Ops (2006)">
+    <div class="g-body">
+      <h3><span class="t-open">Gene</span></h3>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>1970: líder carismático del motín de FOX en San Hieronymo. Producto del proyecto «Successor» para fabricar un comandante perfecto a imagen de The Boss, planea fundar su propia nación de soldados, «Army's Heaven». Derrotado por Naked Snake, le lega sus fondos y su sueño: semillas de Outer Heaven.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Skull Face (secret) -->
+  <article class="card gated secret" data-game="gz" data-req="ARCHIVO CLASIFICADO — Completa Ground Zeroes (2014)">
+    <div class="g-body">
+      <h3><span class="t-open">Skull Face</span></h3>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>1975: comandante de XOF, la unidad encubierta que tortura a Paz y Chico en Camp Omega y arrasa Mother Base. Un fantasma sin rostro que opera bajo la sombra de Cipher.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: húngaro desfigurado en la guerra, despojado de su lengua materna por ocupaciones sucesivas: su venganza es despojar al mundo entero del inglés mediante <strong>parásitos de las cuerdas vocales</strong>, y repartir disuasión nuclear «a todos» para abolir las hegemonías. Traicionó a Zero (el parásito que lo incapacitó), usurpó Cipher y construyó Sahelanthropus. Muere mutilado por Venom y Miller, rematado por Huey.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Venom (secret) -->
+  <article class="card gated secret" data-game="tpp" data-req="ARCHIVO CLASIFICADO — Completa The Phantom Pain (2015)">
+    <div class="g-body">
+      <h3><span class="t-open">Venom Snake</span></h3>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>El protagonista de The Phantom Pain <strong>no es Big Boss</strong>: es su médico de MSF, el hombre que protegió a su jefe con el cuerpo en Ground Zeroes. Reconstruido con cirugía e hipnosis durante el coma, despierta en 1984 creyéndose Big Boss y lidera Diamond Dogs mientras el original construye otra cosa en otra parte. Asume la verdad... y el papel: el «Big Boss» que muere en Outer Heaven (1995) a manos de Solid Snake es Venom.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Quiet (secret) -->
+  <article class="card gated secret" data-game="tpp" data-req="ARCHIVO CLASIFICADO — Completa The Phantom Pain (2015)">
+    <div class="g-body">
+      <h3><span class="t-open">Quiet</span></h3>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: asesina de XOF enviada a matar a Big Boss en el hospital; abrasada en el intento, sobrevive gracias a parásitos que la obligan a respirar por la piel. Capturada por Venom, combate a su lado. Porta la cepa inglesa del parásito vocal: calla para no contagiar a Diamond Dogs y desaparece en el desierto tras salvar a Venom, rompiendo su silencio una sola vez.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <!-- Armstrong (secret) -->
+  <article class="card gated secret" data-game="rising" data-req="ARCHIVO CLASIFICADO — Completa Rising (2013)">
+    <div class="g-body">
+      <h3><span class="t-open">Steven Armstrong</span></h3>
+      <div class="seg gated" data-game="rising" data-req="Completa Metal Gear Rising (2013)"><div class="g-body">
+        <span class="s-src">Rising · 2013</span>
+        <p>2018: senador y patrón de la PMC World Marshal. Su plan: atentados de falsa bandera, cerebros de niños soldado convertidos en ciborgs y una América «fuerte» donde sobreviva el más apto. Potenciado por nanomáquinas que endurecen su cuerpo, aplasta al Metal Gear EXCELSUS con las manos; Raiden lo destroza con la espada de Sam.</p>
+      </div></div>
+      <div class="seg" style="margin-top:8px;">
+        <span class="s-src">Rising · 2013 — Jetstream Sam &amp; Desperado</span>
+        <p>Samuel Rodrigues, espadachín brasileño de Desperado, reta a Raiden y muere en duelo en el desierto; su espada —y su perro robot Blade Wolf— pasan a Raiden como herencia inesperada.</p>
+      </div>
+    </div>
+  </article>
+
+  </section>
+
+<section class="zone" id="sec-organizaciones">
+  <h2><span class="idx">02</span>Organizaciones</h2>
+  <p class="z-desc">Facciones, unidades y conspiraciones. Algunas entradas permanecen selladas: su mera existencia es información clasificada.</p>
+
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Los Filósofos</h3>
+      <p class="c-sub">The Philosophers · El comité en la sombra</p>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">MGS3 · 2004</span>
+        <p>Alianza secreta de las élites de EE. UU., la URSS y China nacida tras la I Guerra Mundial. Reunieron un fondo de 100.000 millones de dólares —el <strong>Legado de los Filósofos</strong>— para financiar la II Guerra Mundial; tras la muerte de sus miembros originales, sus herederos se disgregaron y el Legado quedó repartido y oculto. La Operación Snake Eater (1964) gira en torno a su recuperación.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Con el Legado recuperado por EE. UU. (y desviado por Ocelot y EVA), Zero fundó una organización heredera que tomaría su relevo: los Patriots.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Los Patriots</h3>
+      <p class="c-sub">The Patriots · La-li-lu-le-lo</p>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">MGS2 · 2001</span>
+        <p>El poder real tras el gobierno de EE. UU.: doce «Sabios» cuya existencia se borra del lenguaje (los nanomáquinas convierten su nombre en «La-li-lu-le-lo»). Orquestaron Big Shell como el ejercicio S3: un plan para fabricar soldados y, sobre todo, para <strong>controlar el flujo de la información</strong> en la era digital. Su consejo de Sabios lleva, según GW, unos cien años muerto.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>Fundados c. 1970 por <strong>Zero, Big Boss, Ocelot, EVA, Para-Medic y Sigint</strong> para cumplir —cada cual a su manera— la voluntad de The Boss. La marcha de Big Boss los partió en dos bandos. Zero delegó el control en una red de IAs (JD, GW, TJ, AL, TR) que degeneró en la «economía de guerra». Destruidos en 2014 por el virus FOXALIVE.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>FOX</h3>
+      <p class="c-sub">Force Operation X · Unidad de Zero</p>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">MGS3 · 2004</span>
+        <p>Unidad encubierta de la CIA fundada por el Mayor Zero: un solo agente sobre el terreno, apoyado por radio. Sus dos primeras misiones reales —Virtuous Mission y Snake Eater— consagran a Naked Snake.</p>
+      </div></div>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>1970: la unidad se amotina en San Hieronymo bajo Gene. Naked Snake, acusado de complicidad, la desmantela desde dentro; sobre sus cenizas nace FOXHOUND.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mg" data-req="SELLADO — Completa Metal Gear (1987)">
+    <div class="g-body">
+      <h3>FOXHOUND</h3>
+      <p class="c-sub">Unidad de fuerzas especiales de élite</p>
+      <div class="seg gated" data-game="mg" data-req="Completa Metal Gear (1987)"><div class="g-body">
+        <span class="s-src">Metal Gear · 1987</span>
+        <p>Unidad de operaciones encubiertas de alto riesgo comandada por Big Boss. Su recluta más verde, Solid Snake, es enviado a Outer Heaven en la Operación Intrude N313.</p>
+      </div></div>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>1999: bajo el mando de Roy Campbell, lanza la Operación Intrude F014 contra Zanzibar Land, sacando a Snake del retiro.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">MGS1 · 1998</span>
+        <p>2005: la unidad al completo —Liquid Snake, Ocelot, Mantis, Wolf, Octopus, Raven— se amotina en Shadow Moses exigiendo los restos de Big Boss. El último FOXHOUND muere combatiendo al primero: Solid Snake.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mg" data-req="SELLADO — Completa Metal Gear (1987)">
+    <div class="g-body">
+      <h3>Outer Heaven</h3>
+      <p class="c-sub">La nación fortaleza de los soldados</p>
+      <div class="seg gated" data-game="mg" data-req="Completa Metal Gear (1987)"><div class="g-body">
+        <span class="s-src">Metal Gear · 1987</span>
+        <p>Estado-fortaleza mercenario en el interior de Sudáfrica, armado con el TX-55. Su líder secreto resulta ser el propio Big Boss, que planeaba un refugio donde los soldados «siempre tuvieran un lugar». Destruido por Solid Snake en 1995.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: Liquid Ocelot bautiza «Outer Heaven» a su conglomerado de las cinco mayores PMC del mundo: la versión corporativa del sueño de Big Boss, puesta al servicio de su insurrección contra los Patriots.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>El «Big Boss» que cayó en Outer Heaven en 1995 era <strong>Venom Snake</strong>, el doble; el original usó la fortaleza como señuelo mientras levantaba Zanzibar Land.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mg2" data-req="SELLADO — Completa Metal Gear 2 (1990)">
+    <div class="g-body">
+      <h3>Zanzibar Land</h3>
+      <p class="c-sub">La nación militar independiente</p>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Estado centroasiático nacido de una guerra de independencia librada por mercenarios. En 1999, en plena crisis energética mundial, secuestra al Dr. Marv (inventor del OILIX) y se rearma nuclearmente con el Metal Gear D. Su líder: Big Boss, vivo y resuelto a perpetuar un mundo en guerra. Cae ante Solid Snake.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Philanthropy</h3>
+      <p class="c-sub">ONG anti-Metal Gear</p>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">MGS2 · 2001</span>
+        <p>Organización fundada por Snake y Otacon tras Shadow Moses para erradicar la proliferación de los Metal Gear. Reconocida por la ONU «pero solo a medias»: opera al margen de la ley, como en el asalto al carguero del Marine Corps en 2007.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Dead Cell · Sons of Liberty · Ejército Gurlukovich</h3>
+      <p class="c-sub">Las fuerzas de Big Shell</p>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">MGS2 · 2001</span>
+        <p><strong>Dead Cell</strong>: unidad antiterrorista de la Marina convertida en escuadrón renegado (Fortune, Vamp, Fatman). <strong>Sons of Liberty</strong>: nombre del grupo «terrorista» de Solidus en Big Shell. <strong>Ejército Gurlukovich</strong>: mercenarios rusos de Sergei Gurlukovich y su hija Olga, resentidos por la rendición rusa de los 90. Los tres convergen en Big Shell como piezas —conscientes o no— del guion S3 de los Patriots.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Unidad Cobra</h3>
+      <p class="c-sub">Los héroes de la II Guerra Mundial</p>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">MGS3 · 2004</span>
+        <p>Unidad legendaria fundada y liderada por The Boss en la II Guerra Mundial: The Pain, The Fear, The End, The Fury y The Sorrow, cada uno bautizado por la emoción que lleva al combate. Reunidos de nuevo en 1964 bajo Volgin, caen uno a uno ante Naked Snake.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="pw" data-req="SELLADO — Completa Peace Walker (2010)">
+    <div class="g-body">
+      <h3>Militaires Sans Frontières</h3>
+      <p class="c-sub">MSF · «Soldados sin fronteras»</p>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>Ejército sin nación fundado por Big Boss y Kazuhira Miller: acepta contratos de cualquier cliente y acoge a soldados de cualquier bandera en su Mother Base frente a Costa Rica. Tras el incidente Peace Walker conserva en secreto el Metal Gear ZEKE: un Estado embrionario con disuasión nuclear propia.</p>
+      </div></div>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>1975: aniquilados. Con la inspección de la AIEA como tapadera, XOF arrasa Mother Base mientras Big Boss rescata a Chico y Paz en Cuba. El sueño dura menos de un año.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="pw" data-req="SELLADO — Completa Peace Walker (2010)">
+    <div class="g-body">
+      <h3>Cipher</h3>
+      <p class="c-sub">El nombre operativo de la red de Zero</p>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p>Organización omnipresente que mueve los hilos del incidente Peace Walker a través de Paz: quiere recuperar a Big Boss como icono... o destruirlo como amenaza. Para los jugadores de MGS4: Cipher es el rostro setentero de la organización de Zero.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: con Zero incapacitado desde 1975 por el parásito de Skull Face, Cipher es ya un cuerpo sin cabeza cuya alma migra a las IAs. Skull Face lo usurpó desde dentro; Miller y Diamond Dogs le declaran una guerra que golpea a un fantasma.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated secret" data-game="gz" data-req="ARCHIVO CLASIFICADO — Completa Ground Zeroes (2014)">
+    <div class="g-body">
+      <h3><span class="t-open">XOF</span></h3>
+      <p class="c-sub">El reverso de FOX</p>
+      <div class="seg gated" data-game="gz" data-req="Completa Ground Zeroes (2014)"><div class="g-body">
+        <span class="s-src">Ground Zeroes · 2014</span>
+        <p>Unidad de apoyo encubierto creada como sombra de FOX («FOX» invertido): donde FOX actuaba, XOF borraba las huellas. Bajo Skull Face se convierte en fuerza de asalto autónoma: Camp Omega y la destrucción de Mother Base son obra suya.</p>
+      </div></div>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>1984: brazo armado de la venganza privada de Skull Face: custodia Sahelanthropus, despliega los Skulls (soldados parasitados) y cae con su comandante.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated secret" data-game="tpp" data-req="ARCHIVO CLASIFICADO — Completa The Phantom Pain (2015)">
+    <div class="g-body">
+      <h3><span class="t-open">Diamond Dogs</span></h3>
+      <p class="c-sub">Los perros de la guerra</p>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p>Ejército mercenario levantado por Miller y Ocelot en Seychelles durante el coma de Big Boss (1975-1984), y comandado a su despertar por Venom Snake. Heredero del espíritu de MSF pero forjado en la venganza: su cruzada contra Cipher y Skull Face culmina con Sahelanthropus capturado y un futuro que conduce, paso a paso, hacia Outer Heaven.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs4" data-req="SELLADO — Completa MGS4 (2008)">
+    <div class="g-body">
+      <h3>Rat Patrol Team 01 · Paradise Lost</h3>
+      <p class="c-sub">Las fuerzas de 2014</p>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p><strong>Rat Patrol</strong>: unidad de la CID que inspecciona las PMC, liderada por Meryl (su nombre, «RAT PT 01», es un anagrama de PATRIOT: trabajaban, sin saberlo, para las IAs). <strong>Paradise Lost</strong>: resistencia anti-Patriots de EVA, custodia del cuerpo de Big Boss.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated secret" data-game="rising" data-req="ARCHIVO CLASIFICADO — Completa Rising (2013)">
+    <div class="g-body">
+      <h3><span class="t-open">World Marshal · Desperado · Maverick</span></h3>
+      <p class="c-sub">Las PMC de la posguerra (2018)</p>
+      <div class="seg gated" data-game="rising" data-req="Completa Metal Gear Rising (2013)"><div class="g-body">
+        <span class="s-src">Rising · 2013</span>
+        <p>Tras la caída de los Patriots, las PMC se reinventan. <strong>World Marshal</strong>: la mayor, controlada por el senador Armstrong; trafica con cerebros de niños para fabricar ciborgs. <strong>Desperado Enforcement</strong>: su brazo sucio (Sundowner, Monsoon, Mistral, Sam). <strong>Maverick</strong>: PMC «ética» de seguridad y reconstrucción donde trabaja Raiden.</p>
+      </div></div>
+    </div>
+  </article>
+</section>
+
+<section class="zone" id="sec-tecnologia">
+  <h2><span class="idx">03</span>Tecnología</h2>
+  <p class="z-desc">Metal Gears, inteligencias artificiales y sistemas que definieron cada era.</p>
+
+  <article class="card gated" data-game="mg" data-req="SELLADO — Completa Metal Gear (1987)">
+    <div class="g-body">
+      <h3>TX-55 Metal Gear</h3>
+      <p class="c-sub">Outer Heaven · 1995</p>
+      <div class="seg gated" data-game="mg" data-req="Completa Metal Gear (1987)"><div class="g-body">
+        <span class="s-src">Metal Gear · 1987</span>
+        <p>El original: tanque bípedo todoterreno con capacidad de lanzamiento nuclear desde cualquier punto del planeta, desarrollado en Outer Heaven por el Dr. Madnar bajo coacción. Destruido por Solid Snake antes de estar operativo.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mg2" data-req="SELLADO — Completa Metal Gear 2 (1990)">
+    <div class="g-body">
+      <h3>Metal Gear D</h3>
+      <p class="c-sub">Zanzibar Land · 1999</p>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Evolución del TX-55 construida (de nuevo a la fuerza) por Madnar para Zanzibar Land. Pilotado por Gray Fox, cae en duelo contra Snake en un campo de minas.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Metal Gear REX</h3>
+      <p class="c-sub">Shadow Moses · 2005</p>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">MGS1 · 1998</span>
+        <p>Desarrollado en secreto por ArmsTech y el Pentágono con Otacon como ingeniero jefe: lanza cabezas nucleares mediante un raíl electromagnético, indetectable e ininterceptable. Su talón de Aquiles, el radomo, obliga a Liquid a pilotarlo con la escotilla abierta. Destruido por Snake.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: su esqueleto, aún en Shadow Moses, vuelve a caminar una última vez pilotado por Snake contra el RAY de Liquid Ocelot.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Metal Gear RAY</h3>
+      <p class="c-sub">El anti-Metal Gear · 2007-2009</p>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">MGS2 · 2001</span>
+        <p>Respuesta de la Marina a la proliferación de derivados de REX: anfibio, ágil, armado con un cañón de agua a presión y diseñado para cazar otros Metal Gear. El prototipo tripulado es robado por Ocelot en 2007; los Patriots producen en masa versiones no tripuladas que escoltan Arsenal Gear.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: Liquid Ocelot conserva un RAY tripulado; Raiden lo destroza a espada en Shadow Moses y luego cae ante el REX de Snake.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Arsenal Gear &amp; GW</h3>
+      <p class="c-sub">La fortaleza de la información · 2009</p>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">MGS2 · 2001</span>
+        <p>Fortaleza submarina móvil oculta bajo Big Shell, escoltada por 25 RAY. Su verdadera arma no es nuclear: alberga a <strong>GW</strong>, la IA de los Patriots destinada a censurar y moldear el flujo digital de información de toda la humanidad. El virus de Emma la corrompe... aparentemente.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>GW no murió: restaurada, es el nodo que Liquid Ocelot secuestra en 2014 para arrebatar el sistema a los Patriots, y la puerta por la que FOXALIVE destruye toda la red.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs3" data-req="SELLADO — Completa Metal Gear Solid 3 (2004)">
+    <div class="g-body">
+      <h3>Shagohod &amp; el concepto de Granin</h3>
+      <p class="c-sub">1964 · Los abuelos del Metal Gear</p>
+      <div class="seg gated" data-game="mgs3" data-req="Completa Metal Gear Solid 3 (2004)"><div class="g-body">
+        <span class="s-src">MGS3 · 2004</span>
+        <p>El <strong>Shagohod</strong> («el que pisa fuerte»): tanque-cohete soviético capaz de lanzar un misil nuclear de alcance intercontinental tras acelerar sobre una pista. Volgin lo financia; Snake lo destruye junto a Groznyj Grad. El ingeniero rival, <strong>Aleksandr Granin</strong>, esboza el concepto alternativo: un «eslabón perdido entre la infantería y la artillería», un tanque bípedo... Sus planos, despreciados por Volgin, viajan a un colega en EE. UU.: la semilla de todos los Metal Gear.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="po" data-req="SELLADO — Completa Portable Ops (2006)">
+    <div class="g-body">
+      <h3>ICBMG / RAXA</h3>
+      <p class="c-sub">San Hieronymo · 1970</p>
+      <div class="seg gated" data-game="po" data-req="Completa Portable Ops (2006)"><div class="g-body">
+        <span class="s-src">Portable Ops · 2006</span>
+        <p>Primeros frutos del legado de Granin: el <strong>ICBMG</strong>, un Metal Gear intercontinental nuclearizado desarrollado en la península de San Hieronymo, y <strong>RAXA</strong>, su prototipo de pruebas. Ambos destruidos durante la insurrección de Gene.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="pw" data-req="SELLADO — Completa Peace Walker (2010)">
+    <div class="g-body">
+      <h3>Peace Walker &amp; Metal Gear ZEKE</h3>
+      <p class="c-sub">Costa Rica · 1974</p>
+      <div class="seg gated" data-game="pw" data-req="Completa Peace Walker (2010)"><div class="g-body">
+        <span class="s-src">Peace Walker · 2010</span>
+        <p><strong>Peace Walker</strong>: arma de represalia nuclear totalmente autónoma de la CIA, gobernada por una IA («Mammal Pod») construida por Strangelove a imagen del carácter de The Boss. Diseñada para garantizar la disuasión sin titubeos humanos, la IA acaba haciendo lo que su modelo habría hecho: se ahoga a sí misma antes que desatar la guerra. <strong>ZEKE</strong>: el primer Metal Gear de una fuerza no estatal, ensamblado por Huey para MSF con piezas recuperadas; secuestrado por Paz y derrotado por Big Boss.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated secret" data-game="tpp" data-req="ARCHIVO CLASIFICADO — Completa The Phantom Pain (2015)">
+    <div class="g-body">
+      <h3><span class="t-open">Sahelanthropus &amp; los parásitos vocales</span></h3>
+      <p class="c-sub">1984 · Las armas de Skull Face</p>
+      <div class="seg gated" data-game="tpp" data-req="Completa The Phantom Pain (2015)"><div class="g-body">
+        <span class="s-src">The Phantom Pain · 2015</span>
+        <p><strong>Sahelanthropus</strong>: Metal Gear bípedo erguido construido por Huey para XOF, armado con uranio empobrecido arcaico y manipulable psíquicamente (Tretij Rebenok). Capturado por Diamond Dogs tras su rampage. <strong>Parásitos de las cuerdas vocales</strong>: arma etnocida que mata según el idioma hablado; la cepa inglesa era la venganza final de Skull Face. Una mutación a bordo de Mother Base obliga a Venom a ejecutar a sus propios hombres en cuarentena.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>FOXDIE</h3>
+      <p class="c-sub">El asesino programable</p>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">MGS1 · 1998</span>
+        <p>Retrovirus diseñado para matar por infarto a objetivos con un perfil genético concreto. Inyectado en secreto a Snake, ejecuta en Shadow Moses a Anderson, Baker... y a Liquid. Naomi lo reprogramó: el plazo de Snake es una incógnita («depende de lo que tengas en el corazón»).</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: Drebin inocula a Snake una cepa nueva (instrumento de los Patriots contra Liquid, EVA y Ocelot); la antigua, mutando, amenazaba con volverse pandemia... pero la nueva cepa la sustituye. El cuerpo de Snake deja de ser un arma biológica andante.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2 (2001)">
+    <div class="g-body">
+      <h3>Nanomáquinas &amp; sistema SOP</h3>
+      <p class="c-sub">El campo de batalla controlado</p>
+      <div class="seg gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2 (2001)"><div class="g-body">
+        <span class="s-src">MGS2 · 2001</span>
+        <p>En Big Shell, las nanomáquinas median la comunicación, suprimen el dolor e incluso censuran palabras («La-li-lu-le-lo»): el cuerpo del soldado como territorio ocupado.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: el sistema <strong>SOP</strong> («Sons of the Patriots») regula a cada soldado del planeta: identificación de armas, supresión de emociones, datos en tiempo real. Liquid Ocelot lo secuestra; su caída junto a las IAs devuelve a los soldados sus traumas... y su libertad.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mg2" data-req="SELLADO — Completa Metal Gear 2 (1990)">
+    <div class="g-body">
+      <h3>OILIX</h3>
+      <p class="c-sub">La microalga del Dr. Marv</p>
+      <div class="seg gated" data-game="mg2" data-req="Completa Metal Gear 2 (1990)"><div class="g-body">
+        <span class="s-src">Metal Gear 2 · 1990</span>
+        <p>Microorganismo capaz de sintetizar petróleo de alta pureza, creado por el checo Kio Marv en plena crisis energética de los 90. Su secuestro por Zanzibar Land desata la Operación Intrude F014; Marv muere, pero Snake recupera la fórmula.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Terapia génica &amp; soldados del genoma</h3>
+      <p class="c-sub">Shadow Moses · 2005</p>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">MGS1 · 1998</span>
+        <p>Los «Genome Soldiers» de Shadow Moses fueron potenciados con genes de soldado derivados del ADN de Big Boss. Los efectos secundarios —físicos y mentales— son parte de lo que Liquid exige remediar con los restos de su «padre».</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid (1998)">
+    <div class="g-body">
+      <h3>Tecnología ciborg / exoesqueletos</h3>
+      <p class="c-sub">De Gray Fox a Raiden</p>
+      <div class="seg gated" data-game="mgs1" data-req="Completa Metal Gear Solid (1998)"><div class="g-body">
+        <span class="s-src">MGS1 · 1998</span>
+        <p>El cuerpo destrozado de Gray Fox, recuperado de Zanzibar Land, es reconstruido como prototipo de exoesqueleto: el primer ninja ciborg, arma y víctima del experimento.</p>
+      </div></div>
+      <div class="seg gated" data-game="mgs4" data-req="Completa MGS4 (2008)"><div class="g-body">
+        <span class="s-src">MGS4 · 2008</span>
+        <p>2014: Raiden, transformado por los Patriots, hereda y supera la tecnología del ninja: esqueleto artificial, sangre blanca, espada de alta frecuencia.</p>
+      </div></div>
+      <div class="seg gated" data-game="rising" data-req="Completa Metal Gear Rising (2013)"><div class="g-body">
+        <span class="s-src">Rising · 2013</span>
+        <p>2018: los ciborgs son ya industria: cuerpos militares de catálogo, cerebros de niños cultivados en VR y un mercado negro de «médulas» que Raiden desangra a espadazos.</p>
+      </div></div>
+    </div>
+  </article>
+
+  <article class="card gated" data-game="rising" data-req="SELLADO — Completa Rising (2013)">
+    <div class="g-body">
+      <h3>Metal Gear EXCELSUS</h3>
+      <p class="c-sub">World Marshal · 2018</p>
+      <div class="seg gated" data-game="rising" data-req="Completa Metal Gear Rising (2013)"><div class="g-body">
+        <span class="s-src">Rising · 2013</span>
+        <p>Colosal plataforma de seis patas-cuchilla del senador Armstrong, más bestia de carga propagandística que arma práctica: «los Metal Gear ya pasaron de moda». Raiden lo desmonta pieza a pieza... y luego Armstrong lo remata con sus propias manos.</p>
+      </div></div>
+    </div>
+  </article>
+</section>
+
+<section class="zone" id="sec-cronologia">
+  <h2><span class="idx">04</span>Cronología del universo</h2>
+  <p class="z-desc">Ordenada por fecha <em>dentro de la ficción</em>. Cada hito permanece sellado hasta que completes el juego que lo reveló: un suceso de 1964 cuya verdad solo se explica en MGS4 no aparecerá hasta que marques MGS4.</p>
+
+  <ol class="chrono">
+    <li class="gated" data-game="mgs3" data-req="Completa MGS3"><span class="ev-yr">Principios s. XX</span><div class="g-body"><span class="ev-src">Revelado en MGS3</span><p>Las élites de EE. UU., la URSS y China forman <strong>los Filósofos</strong> y reúnen el Legado: 100.000 millones de dólares para mover la historia desde la sombra.</p></div></li>
+
+    <li class="gated" data-game="mgs3" data-req="Completa MGS3"><span class="ev-yr">1944</span><div class="g-body"><span class="ev-src">Revelado en MGS3</span><p>The Boss funda la Unidad Cobra y cambia el rumbo de la II Guerra Mundial. Ese mismo año da a luz a un hijo, fruto de su vínculo con The Sorrow (identidad no esclarecida en este punto de la saga).</p></div></li>
+
+    <li class="gated secret" data-game="mgs4" data-req="Completa MGS4"><span class="ev-yr">1959-1964</span><div class="g-body"><span class="ev-src">Revelado en MGS4</span><p>Ese hijo de The Boss crece en el seno de los Filósofos: es <strong>el futuro Revolver Ocelot</strong>, criado por EVA. Una pieza que tardará décadas en encajar.</p></div></li>
+
+    <li class="gated" data-game="mgs3" data-req="Completa MGS3"><span class="ev-yr">1962</span><div class="g-body"><span class="ev-src">Revelado en MGS3</span><p>Crisis de los misiles de Cuba. The Boss desaparece en un accidente de reentrada espacial (versión oficial); en realidad se prepara su misión más oscura.</p></div></li>
+
+    <li class="gated" data-game="mgs3" data-req="Completa MGS3"><span class="ev-yr">1964 · Virtuous Mission</span><div class="g-body"><span class="ev-src">Revelado en MGS3</span><p>The Boss deserta a la URSS con Volgin. Hiere a su discípulo Naked Snake y desaparece: el detonante de Snake Eater.</p></div></li>
+
+    <li class="gated" data-game="mgs3" data-req="Completa MGS3"><span class="ev-yr">1964 · Operación Snake Eater</span><div class="g-body"><span class="ev-src">Revelado en MGS3</span><p>Naked Snake elimina a Volgin y el Shagohod, y ejecuta a The Boss en el campo de flores. La verdad: The Boss fingió la deserción por orden de su país y murió como traidora para salvar al mundo. Snake recibe el título de <strong>Big Boss</strong> y una herida que no cierra.</p></div></li>
+
+    <li class="gated secret" data-game="mgs4" data-req="Completa MGS4"><span class="ev-yr">c. 1970 · Fundación de los Patriots</span><div class="g-body"><span class="ev-src">Revelado en MGS4</span><p>Zero reúne a Big Boss, Ocelot, EVA, Para-Medic y Sigint para honrar la voluntad de The Boss. El desacuerdo sobre <em>cómo</em> hacerlo —control frente a libertad— acabará rompiéndolos y dará forma al siglo siguiente.</p></div></li>
+
+    <li class="gated secret" data-game="po" data-req="Completa Portable Ops"><span class="ev-yr">1970 · San Hieronymo</span><div class="g-body"><span class="ev-src">Revelado en Portable Ops</span><p>La unidad FOX se amotina bajo Gene en una vieja base soviética. Naked Snake la desmantela, hereda el sueño de Gene y los fondos que cimentarán su futuro.</p></div></li>
+
+    <li class="gated secret" data-game="mgs4" data-req="Completa MGS4"><span class="ev-yr">1972 · Les Enfants Terribles</span><div class="g-body"><span class="ev-src">Revelado en MGS1 (parcial) · ampliado en MGS4</span><p>Se clona a Big Boss: nacen Solid, Liquid (gemelos) y, después, Solidus. <span class="secret">EVA fue la madre subrogada que los gestó.</span> El proyecto repugna a Big Boss y ahonda su ruptura con Zero.</p></div></li>
+
+    <li class="gated secret" data-game="pw" data-req="Completa Peace Walker"><span class="ev-yr">1974 · Incidente Peace Walker</span><div class="g-body"><span class="ev-src">Revelado en Peace Walker</span><p>Big Boss y MSF frustran un lanzamiento nuclear autónomo en Centroamérica. Rechaza volver con Cipher, asume su nombre y se queda con el Metal Gear ZEKE: nace un poder sin nación.</p></div></li>
+
+    <li class="gated secret" data-game="gz" data-req="Completa Ground Zeroes"><span class="ev-yr">1975 · Ground Zeroes</span><div class="g-body"><span class="ev-src">Revelado en Ground Zeroes</span><p>XOF, de Skull Face, arrasa Mother Base usando una inspección nuclear como tapadera. Paz y Chico mueren; Big Boss cae en coma. El fin de MSF.</p></div></li>
+
+    <li class="gated secret" data-game="tpp" data-req="Completa The Phantom Pain"><span class="ev-yr">1984 · The Phantom Pain</span><div class="g-body"><span class="ev-src">Revelado en The Phantom Pain</span><p>Despierta el «fantasma»: <span class="secret">no es Big Boss, sino su médico convertido en doble, Venom Snake.</span> Lidera Diamond Dogs y derrota a Skull Face mientras el verdadero Big Boss obra en secreto. La «pena fantasma» de toda la saga, hecha personaje.</p></div></li>
+
+    <li class="gated" data-game="mg" data-req="Completa Metal Gear"><span class="ev-yr">1995 · Outer Heaven</span><div class="g-body"><span class="ev-src">Revelado en Metal Gear</span><p>Solid Snake (FOXHOUND) se infiltra en la fortaleza africana, destruye el TX-55 y derrota a su líder: Big Boss. <span class="secret t-extra" data-game="tpp">Addendum (TPP): ese «Big Boss» era en realidad Venom.</span></p></div></li>
+
+    <li class="gated" data-game="mg2" data-req="Completa Metal Gear 2"><span class="ev-yr">1999 · Zanzibar Land</span><div class="g-body"><span class="ev-src">Revelado en Metal Gear 2</span><p>Snake regresa, destruye el Metal Gear D y derrota definitivamente a Big Boss, que muere. Fin de una era.</p></div></li>
+
+    <li class="gated secret" data-game="mgs4" data-req="Completa MGS4"><span class="ev-yr">c. 2003</span><div class="g-body"><span class="ev-src">Revelado en MGS4</span><p>El resucitado Gray Fox mata a la Dra. Clark (Para-Medic) al escapar del laboratorio donde lo reconstruían: el experimento devora a su creadora.</p></div></li>
+
+    <li class="gated" data-game="mgs1" data-req="Completa Metal Gear Solid"><span class="ev-yr">2005 · Shadow Moses</span><div class="g-body"><span class="ev-src">Revelado en MGS1</span><p>FOXHOUND se amotina exigiendo los restos de Big Boss. Solid Snake destruye REX, derrota a Liquid y descubre que ambos son clones. El FOXDIE siembra cadáveres por el camino.</p></div></li>
+
+    <li class="gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2"><span class="ev-yr">2007 · Incidente del tanker</span><div class="g-body"><span class="ev-src">Revelado en MGS2</span><p>Ocelot roba el Metal Gear RAY y hunde un carguero; se culpa a Snake, que pasa a ser declarado muerto. Comienza la era de la desinformación.</p></div></li>
+
+    <li class="gated" data-game="mgs2" data-req="Completa Metal Gear Solid 2"><span class="ev-yr">2009 · Big Shell</span><div class="g-body"><span class="ev-src">Revelado en MGS2</span><p>Raiden recorre, sin saberlo, un guion (S3) diseñado por los Patriots para fabricar soldados y dominar la información. Solidus muere; Raiden despierta a la verdad de que apenas controla su propia vida.</p></div></li>
+
+    <li class="gated secret" data-game="mgs4" data-req="Completa MGS4"><span class="ev-yr">2014 · Guns of the Patriots</span><div class="g-body"><span class="ev-src">Revelado en MGS4</span><p>Un Snake envejecido frustra la insurrección de Liquid Ocelot; el virus FOXALIVE destruye las IAs. Big Boss reaparece, hace las paces con su hijo y muere ante la tumba de The Boss. El ciclo se cierra.</p></div></li>
+
+    <li class="gated secret" data-game="rising" data-req="Completa Rising"><span class="ev-yr">2018 · Incidente World Marshal</span><div class="g-body"><span class="ev-src">Revelado en Rising</span><p>En un mundo de PMC desreguladas, Raiden derriba el plan del senador Armstrong de cosechar cerebros de niños soldado. El último eco de la economía de guerra.</p></div></li>
+  </ol>
+</section>
+
+<section class="zone" id="sec-eventos">
+  <h2><span class="idx">05</span>Eventos históricos</h2>
+  <p class="z-desc">Fichas ampliadas de los grandes incidentes. Despliega cada una para leer el detalle; permanecen selladas según tu progreso.</p>
+
+  <details class="evt gated" data-game="mgs3" data-req="SELLADO — Completa MGS3"><summary>1964 · Operación Snake Eater</summary><div class="g-body">
+    <p>La misión que lo origina todo. El coronel Volgin desvía el Legado de los Filósofos —cien mil millones de dólares acumulados en secreto desde la II Guerra Mundial— y amenaza con un lanzamiento nuclear que podría desencadenar la III Guerra Mundial. Para evitarlo y recuperar el dinero, el gobierno estadounidense ordena a Naked Snake infiltrarse en Tselinoyarsk disfrazado de agente soviético. The Boss, su mentora, finge desertar al bando de Volgin y proporciona a este las armas que convierten la crisis en algo real: el precio de esta coartada es su propia vida.</p>
+    <p>Snake debe cruzar la jungla soviética, destruir el tanque-cohete Shagohod antes de que pueda disparar, y finalmente ejecutar a la mujer que le enseñó todo lo que sabe. The Boss muere como traidora ante los ojos del mundo pero como heroína en secreto; su homenaje oficial es clasificado durante décadas. Snake recibe el título de Big Boss, que acepta sin orgullo: es la cicatriz que lo marcará para siempre. El Legado pasa a manos de Zero, semilla de los Patriots. El concepto de Granin —un tanque bípedo— viaja a Occidente, raíz de todos los Metal Gear futuros.</p>
+  </div></details>
+
+  <details class="evt gated secret" data-game="po" data-req="SELLADO — Completa Portable Ops"><summary>1970 · Insurrección de San Hieronymo</summary><div class="g-body">
+    <p>Seis años después de Snake Eater, la unidad FOX —a la que Naked Snake pertenecía— se amotina en una base abandonada de misiles soviéticos en la península de San Hieronymo (Sudamérica). La lidera Gene, producto del proyecto «Successor» de la CIA: un comandante fabricado para encarnar el liderazgo de The Boss. Con la cobertura de un ataque nuclear al norte y al sur de América, Gene planea fundar «Army's Heaven», una nación de soldados libre de toda nación.</p>
+    <p>Big Boss, acusado en falso de complicidad, es capturado y debe escapar, reclutar sobre el terreno a sus propios captores —soviéticos, guerrilleros, exsoldados— y desmantelar la insurrección. Derrota a Gene y destruye el prototipo RAXA del ICBMG. Gene, en sus últimas palabras, le lega sus fondos y el sueño de un ejército sin banderas: la semilla que germinará en Outer Heaven. Big Boss abandona FOX; la unidad se disuelve. Sobre sus cenizas, Roy Campbell y él fundan FOXHOUND.</p>
+  </div></details>
+
+  <details class="evt gated secret" data-game="pw" data-req="SELLADO — Completa Peace Walker"><summary>1974 · Incidente Peace Walker</summary><div class="g-body">
+    <p>Costa Rica, 1974. La CIA financia en secreto el desarrollo de un sistema de represalia nuclear autónoma en el único país de América que no tiene ejército. El arma central es Peace Walker: un Metal Gear gobernado por la IA «Mammal Pod», construida por Strangelove a imagen de la personalidad de The Boss. La misión de Big Boss y MSF: detenerla antes de que dispare.</p>
+    <p>Paz Ortega Andrade, estudiante de ideales pacifistas, resulta ser agente de Cipher enviada para hacerse con el Metal Gear ZEKE que Huey ha ensamblado para MSF. La IA de Peace Walker, al enfrentarse al dilema real de lanzar o no, actúa como lo haría su modelo: prefiere hundirse en el lago antes que desatar la guerra. Big Boss rechaza la oferta de reunirse con Zero y Cipher, asume definitivamente el nombre que le impusieron y convierte MSF en un poder soberano con disuasión nuclear propia. El equilibrio del terror ya no es privilegio de los estados.</p>
+  </div></details>
+
+  <details class="evt gated secret" data-game="gz" data-req="SELLADO — Completa Ground Zeroes"><summary>1975 · Caída de Mother Base</summary><div class="g-body">
+    <p>XOF, unidad fantasma de Skull Face que opera al margen —y en contra— de Cipher, aprovecha una inspección de la AIEA como tapadera para arrastrar a Big Boss lejos de Mother Base. Mientras Big Boss rescata a Chico y Paz de Camp Omega (Cuba), la flota de XOF destroza las plataformas de MSF sin dejar supervivientes. Paz, a la que se le había implantado una bomba en el abdomen, muere en la explosión cerca del helicóptero de evacuación; el estallido deja a Big Boss y a Miller gravemente heridos y provoca el largo coma que abre MGSV.</p>
+    <p>La caída de Mother Base es el mayor trauma de la saga después de la muerte de The Boss: el fin del sueño de un ejército sin nación y el nacimiento de la necesidad de venganza que motiva Diamond Dogs. Skull Face, con este golpe, comienza su campaña para destruir a Cipher desde dentro mientras prepara su propia arma de destrucción masiva.</p>
+  </div></details>
+
+  <details class="evt gated secret" data-game="tpp" data-req="SELLADO — Completa The Phantom Pain"><summary>1984 · The Phantom Pain</summary><div class="g-body">
+    <p>Nueve años después del desastre de Mother Base, el «fantasma» de Big Boss despierta del coma. Junto a Miller y Ocelot reconstruye un ejército privado, Diamond Dogs, para rastrear y destruir a Skull Face y a XOF. La amenaza real: los parásitos vocales, una cepa étnica diseñada para matar a cualquiera que hable un idioma concreto —en manos de XOF, un arma de exterminio cultural a escala global. El portador de la cepa inglesa es el propio Skull Face, que planea una extinción en cadena.</p>
+    <p>La gran revelación que lo cambia todo: el protagonista no es Big Boss. Es su médico personal, operado e hipnotizado para creer que es él: Venom Snake, el «fantasma» que da nombre al juego. El verdadero Big Boss ha estado operando en secreto mientras su doble absorbe el odio de sus enemigos y construye Diamond Dogs. Venom asume la verdad con amargura y elige seguir siendo el «Big Boss» que sus soldados necesitan. Eli —un niño soldado de genética excepcional que resultará ser Liquid Snake— escapa con Sahelanthropus hacia África. El ciclo de odio que lleva a Outer Heaven y a Shadow Moses está en marcha.</p>
+  </div></details>
+
+  <details class="evt gated" data-game="mg" data-req="SELLADO — Completa Metal Gear"><summary>1995 · Outer Heaven</summary><div class="g-body">
+    <p>Solid Snake, el recluta más verde de FOXHOUND, recibe su primera misión real: infiltrarse en Outer Heaven, una nación-fortaleza mercenaria al sur de África, y rescatar al agente Gray Fox, que ha desaparecido. Una vez dentro descubre que el objetivo de Outer Heaven es el TX-55, un tanque bípedo nuclear que amenaza con romper el equilibrio estratégico mundial. El líder secreto de Outer Heaven —que resulta ser el propio Big Boss, su comandante por radio— le ordena abortar. Snake desobedece.</p>
+    <p>Destruye el TX-55 en las profundidades de la fortaleza y enfrenta a Big Boss en combate directo, derrotándolo. Es la primera vez que el alumno vence al maestro, y Big Boss no lo olvidará. Años después se revelará que ese Big Boss en Outer Heaven era Venom Snake actuando como señuelo mientras el verdadero Big Boss preparaba Zanzibar Land.</p>
+  </div></details>
+
+  <details class="evt gated" data-game="mg2" data-req="SELLADO — Completa Metal Gear 2"><summary>1999 · Zanzibar Land</summary><div class="g-body">
+    <p>El mundo de 1999 sufre una crisis energética sin precedentes; el petróleo escasea y el Dr. Kio Marv ha inventado el OILIX, una microalga capaz de sintetizar combustible. Zanzibar Land —Estado centroasiático fundado por Big Boss tras Outer Heaven— secuestra a Marv y a su fórmula mientras se rearma nuclearmente con el Metal Gear D, pilotado por Gray Fox. Roy Campbell saca a Solid Snake del retiro voluntario en Alaska para recuperar la fórmula y neutralizar la amenaza.</p>
+    <p>Snake supera a Gray Fox en un duelo a puño limpio sobre un campo de minas, recupera el OILIX y se enfrenta al verdadero Big Boss en un enfrentamiento que lo deja definitivamente muerto —o eso parece. Es el cierre de la era MSX: la historia de los dos Snakes que comenzó en Outer Heaven llega a su conclusión lógica. A partir de aquí, la saga da el salto a Metal Gear Solid y una nueva generación de conflictos.</p>
+  </div></details>
+
+  <details class="evt gated" data-game="mgs1" data-req="SELLADO — Completa Metal Gear Solid"><summary>2005 · Incidente de Shadow Moses</summary><div class="g-body">
+    <p>Una unidad entera de FOXHOUND —Liquid Snake, Ocelot, Psycho Mantis, Sniper Wolf, Vulcan Raven y Decoy Octopus— toma la isla de Shadow Moses (Alaska), donde se almacenaban en secreto armas nucleares, y amenaza con lanzar una ojiva si no reciben los restos de Big Boss. Solid Snake es sacado de su retiro en Alaska por Campbell y enviado solo, sin apoyo oficial, para infiltrarse y neutralizar la amenaza.</p>
+    <p>Descubre que es un clon de Big Boss (proyecto «Les Enfants Terribles»), que el FOXDIE que le inyectó Naomi Hunter podría matarlo en cualquier momento, y que el propio Pentágono orquestó el incidente para recuperar secretos de Big Boss. Destruye el Metal Gear REX después de que Otacon le revele el punto débil del radomo, derrota a Liquid en combate sobre el REX destruido, y escapa con Meryl —o con Otacon, según las decisiones del jugador. El FOXDIE mata a Liquid en la línea de meta. Shadow Moses convierte a Solid Snake en leyenda pública; él preferiría no serlo.</p>
+  </div></details>
+
+  <details class="evt gated" data-game="mgs2" data-req="SELLADO — Completa Metal Gear Solid 2"><summary>2007-2009 · Tanker y Big Shell</summary><div class="g-body">
+    <p>En 2007, Snake y Otacon se infiltran en un carguero de la Marina para fotografiar el nuevo Metal Gear RAY antes de que los Patriots lo oculten. Ocelot —actuando como agente triple al servicio de Liquid y en contra de los Patriots— roba el RAY y hunde el barco; Snake es declarado muerto. En 2009, la «limpieza» de un derrame de petróleo frente a Manhattan resulta ser una tapadera: bajo la plataforma Big Shell se construye Arsenal Gear, una fortaleza móvil que alberga la IA GW de los Patriots.</p>
+    <p>Raiden, un novato de FOXHOUND que cree estar en una misión de rescate, descubre que ha sido sometido al programa S3: los Patriots han diseñado todo el incidente para fabricar un soldado perfecto mediante un guion controlado. Solidus Snake, los Sons of Liberty y los soldados Gurlukovich convergen en Big Shell como piezas de este juego sin que ninguno lo sepa. Arsenal Gear se estrella contra Manhattan; Solidus muere frente a Federal Hall. Raiden, despojado de toda certeza sobre su identidad, empieza a construirse desde cero.</p>
+  </div></details>
+
+  <details class="evt gated secret" data-game="mgs4" data-req="SELLADO — Completa MGS4"><summary>2014 · Guns of the Patriots</summary><div class="g-body">
+    <p>El mundo de 2014 funciona bajo la «economía de guerra»: los Patriots han regulado cada conflicto armado del planeta mediante el sistema SOP, que controla a los soldados a través de nanomáquinas. Liquid Ocelot —Ocelot con la personalidad de Liquid sobreimpresa mediante hipnosis y psicoterapia— lidera la mayor insurrección de la historia para secuestrar SOP y revertir el control de los Patriots, a los que en realidad quiere destruir. Solid Snake, prematuramente envejecido por el diseño genético de los clones, es enviado en su última misión.</p>
+    <p>Otacon, Naomi, Raiden (ya como ninja ciborg), Meryl y el traficante de armas Drebin apoyan a Snake a través de cinco actos que recorren el mundo. Naomi y Sunny construyen FOXALIVE, el virus que destruirá las IAs de los Patriots. Big Boss reaparece vivo para cerrar las cuentas pendientes con Zero —al que desconecta de los sistemas que lo mantenían vivo— y con su propio legado. Muere ante la tumba de The Boss, en paz por primera vez. El ciclo iniciado en 1964 se cierra.</p>
+  </div></details>
+
+  <details class="evt gated secret" data-game="rising" data-req="SELLADO — Completa Rising"><summary>2018 · Incidente World Marshal</summary><div class="g-body">
+    <p>Cuatro años después del colapso de los Patriots y del sistema SOP, el mundo no ha recuperado la estabilidad: las PMC (compañías militares privadas) operan sin regulación y la tecnología ciborg se ha convertido en industria. Raiden trabaja para Maverick Security cuando un ataque del grupo paramilitar Desperado lo deja destrozado; reconstruido como cyborg de combate de nueva generación, descubre que Desperado y su matriz, World Marshal, trafican con cerebros de niños soldado cultivados en realidad virtual.</p>
+    <p>El patrón político detrás de todo es el senador Steven Armstrong, cuya filosofía —«el fuerte sobrevive y el débil muere; que gane el que tenga razón»— es la versión hipercapitalista del sueño de Big Boss llevado al extremo nihilista. Armstrong absorbe el núcleo de nanomáquinas de Metal Gear EXCELSUS y enfrenta a Raiden en combate puro. Raiden lo mata con las manos y la espada de Sam, pero Armstrong tiene razón en una cosa: el mundo que viene no tiene reglas. Rising es el epílogo del universo Metal Gear, donde la ideología del «soldado sin nación» ha degenerado en mercado de la violencia.</p>
+  </div></details>
+</section>
+
+<footer class="foot">
+  <p><strong>Enciclopedia progresiva Metal Gear</strong> · El desbloqueo se rige por <em>orden de lanzamiento</em>, nunca por cronología interna. Ante la duda, la ficha permanece sellada.</p>
+  <p class="foot-sm">Documento autocontenido — sin conexión, sin dependencias. Tu progreso vive solo en esta pestaña.</p>
+</footer>
+
+<script>
+(function(){
+  // Orden de LANZAMIENTO — base de todo el desbloqueo
+  var GAMES = [
+    {id:'mg',    label:'Metal Gear',              yr:"1987"},
+    {id:'mg2',   label:'Metal Gear 2',            yr:"1990"},
+    {id:'mgs1',  label:'Metal Gear Solid',        yr:"1998"},
+    {id:'mgs2',  label:'Metal Gear Solid 2',      yr:"2001"},
+    {id:'mgs3',  label:'Metal Gear Solid 3',      yr:"2004"},
+    {id:'po',    label:'Portable Ops',            yr:"2006"},
+    {id:'mgs4',  label:'MGS4: Guns of the Patriots', yr:"2008"},
+    {id:'pw',    label:'Peace Walker',            yr:"2010"},
+    {id:'rising',label:'Rising: Revengeance',     yr:"2013"},
+    {id:'gz',    label:'Ground Zeroes',           yr:"2014"},
+    {id:'tpp',   label:'The Phantom Pain',        yr:"2015"}
+  ];
+  var order = {}; GAMES.forEach(function(g,i){ order[g.id]=i; });
+
+  var rail = document.getElementById('rail');
+  var counter = document.getElementById('counter');
+  var checks = {};
+
+  // Construir el carril de acceso
+  GAMES.forEach(function(g,i){
+    var lab = document.createElement('label');
+    lab.className = 'rail-item';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.dataset.game = g.id;
+    var txt = document.createElement('span');
+    txt.className = 'rail-txt';
+    txt.innerHTML = '<span class="rail-n">'+(i+1)+'</span>'+g.label+' <span class="rail-yr">'+g.yr+'</span>';
+    lab.appendChild(cb); lab.appendChild(txt);
+    rail.appendChild(lab);
+    checks[g.id] = cb;
+    cb.addEventListener('change', function(){ onToggle(g.id, cb.checked); });
+  });
+
+  // Cascada por ORDEN DE LANZAMIENTO:
+  // marcar un juego marca todos los anteriores; desmarcarlo desmarca los posteriores.
+  function onToggle(id, checked){
+    var idx = order[id];
+    GAMES.forEach(function(g){
+      if(checked && order[g.id] <= idx) checks[g.id].checked = true;
+      if(!checked && order[g.id] >= idx) checks[g.id].checked = false;
+    });
+    update();
+  }
+
+  function unlockedSet(){
+    var s = {};
+    GAMES.forEach(function(g){ if(checks[g.id].checked) s[g.id] = true; });
+    return s;
+  }
+
+  function update(){
+    var s = unlockedSet();
+    var nodes = document.querySelectorAll('[data-game]');
+    var totalReg = 0, openReg = 0;
+    nodes.forEach(function(el){
+      if(el.tagName === 'INPUT') return;           // los checkbox no son fichas
+      var req = el.getAttribute('data-game');
+      var locked = !s[req];
+      // contabilizar solo "registros" (elementos con la clase gated)
+      if(el.classList.contains('gated')){
+        totalReg++;
+        if(!locked) openReg++;
+      }
+      el.classList.toggle('locked', locked);
+    });
+    var done = GAMES.filter(function(g){ return checks[g.id].checked; }).length;
+    counter.textContent = done + ' / ' + GAMES.length + ' juegos · ' + openReg + ' registros desbloqueados';
+  }
+
+  document.getElementById('btnAll').addEventListener('click', function(){
+    GAMES.forEach(function(g){ checks[g.id].checked = true; }); update();
+  });
+  document.getElementById('btnNone').addEventListener('click', function(){
+    GAMES.forEach(function(g){ checks[g.id].checked = false; }); update();
+  });
+
+  update(); // estado inicial: todo sellado
+})();
+</script>
+</body>
+</html>
